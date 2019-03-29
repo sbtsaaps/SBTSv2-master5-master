@@ -5,16 +5,13 @@ import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,32 +24,33 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import sbts.dmw.com.sbtrackingsystem.R;
-import sbts.dmw.com.sbtrackingsystem.classes.SessionManager;
 import sbts.dmw.com.sbtrackingsystem.classes.SingletonClass;
-
-import static android.content.Context.LOCATION_SERVICE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -76,6 +74,8 @@ public class map extends Fragment implements OnMapReadyCallback {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+
         sharedPreferences = getActivity().getSharedPreferences("LOGIN", Context.MODE_PRIVATE);
     }
 
@@ -126,7 +126,7 @@ public class map extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Bus_No=sharedPreferences.getString("Bus_No",null);
+        Bus_No = sharedPreferences.getString("Bus_No", null);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
@@ -151,14 +151,15 @@ public class map extends Fragment implements OnMapReadyCallback {
                         @Override
                         public void onResponse(String response) {
                             str = Pattern.compile(",").split(response);
-                            gMap.clear();
-                            att = new MarkerOptions().position(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]))).title("Bus");
+                            //  gMap.clear();
+                            // att = new MarkerOptions().position(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]))).title("Bus");
+                            att = new MarkerOptions().position(new LatLng(19.0860, 72.8990)).title("Bus");
 
-                           att.icon(BitmapDescriptorFactory.fromResource(R.drawable.bumarker));
+                            att.icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_station_location__48));
                             marker = gMap.addMarker(att);
 
                             if (once) {
-                                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1])), 17));
+                                // gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1])), 17));
                                 once = false;
                             }
 
@@ -172,7 +173,7 @@ public class map extends Fragment implements OnMapReadyCallback {
                 @Override
                 protected Map<String, String> getParams() throws AuthFailureError {
                     Map<String, String> params = new HashMap<String, String>();
-                    params.put("Bus_no",Bus_No );
+                    params.put("Bus_no", Bus_No);
                     return params;
                 }
             };
@@ -209,8 +210,70 @@ public class map extends Fragment implements OnMapReadyCallback {
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
-            gMap.setMyLocationEnabled(true);
+            gMap.addMarker(new MarkerOptions().position(new LatLng(19.0760, 72.8990)));
+            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(19.0760, 72.8990), 17));
+
+
+            // gMap.setMyLocationEnabled(true);
+
+        }
+        new fetchjson().execute();
+    }
+
+    class fetchjson extends AsyncTask<String, String, String> {
+
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+            String requrl = "https://route.api.here.com/routing/7.2/calculateroute.json?app_id=ofcuggcq8XPpVyNQVyiJ&app_code=8giwlHmpdI5AbFQ-arHYRQ&waypoint0=19.0760,72.8990&waypoint1=19.0860,72.8990&mode=fastest;car;traffic:disabled";
+            String value = null;
+            try {
+                URL url = new URL(requrl);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.connect();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+                value = bufferedReader.readLine();
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            return value;
         }
 
+        @Override
+        protected void onPostExecute(String s) {
+
+            try {
+                JSONObject jsonObject = new JSONObject(s);
+
+                JSONArray array =jsonObject.getJSONArray("route");
+                Toast.makeText(getContext(),"jhhjj",Toast.LENGTH_LONG).show();
+
+                JSONObject jsonObject1 = array.getJSONObject(0);
+                JSONArray array1 =jsonObject1.getJSONArray("leg");
+                JSONObject jsonObject2 = array1.getJSONObject(0);
+                JSONArray array2 = jsonObject2.getJSONArray("maneuver");
+                for(int i=0;i<array2.length();i++){
+                    JSONObject jsonObject3 = array2.getJSONObject(i);
+                    JSONObject jsonObject4 =jsonObject3.getJSONObject("position");
+                    Toast.makeText(getContext(),jsonObject4.getString("latitude"),Toast.LENGTH_LONG).show();
+
+
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+        }
     }
+
 }
