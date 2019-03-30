@@ -5,6 +5,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,6 +35,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -60,6 +62,7 @@ public class map extends Fragment implements OnMapReadyCallback {
     MarkerOptions att;
     Boolean once = true;
     String Bus_No;
+    String requrl;
 
     private Handler handler = new Handler();
     String[] str;
@@ -151,15 +154,17 @@ public class map extends Fragment implements OnMapReadyCallback {
                         @Override
                         public void onResponse(String response) {
                             str = Pattern.compile(",").split(response);
-                            //  gMap.clear();
-                            // att = new MarkerOptions().position(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]))).title("Bus");
-                            att = new MarkerOptions().position(new LatLng(19.0860, 72.8990)).title("Bus");
-
+                            //gMap.clear();
+                            att = new MarkerOptions().position(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]))).title("Bus");
+                            //att = new MarkerOptions().position(new LatLng(19.0860, 72.8990)).title("Bus");
+                            gMap.addMarker(new MarkerOptions().position(new LatLng(19.0760, 72.8990)).title("Pick-up spot"));
+                            requrl = "https://route.api.here.com/routing/7.2/calculateroute.json?app_id=ofcuggcq8XPpVyNQVyiJ&app_code=8giwlHmpdI5AbFQ-arHYRQ&waypoint0=19.0760,72.8990&waypoint1="+str[0]+","+str[1]+"&mode=balanced;car;traffic:disabled";
+                            new fetchjson().execute();
                             att.icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_station_location__48));
                             marker = gMap.addMarker(att);
 
                             if (once) {
-                                // gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1])), 17));
+                                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1])), 17));
                                 once = false;
                             }
 
@@ -196,7 +201,7 @@ public class map extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gMap = googleMap;
-        gMap.setTrafficEnabled(true);
+        gMap.setTrafficEnabled(false);
         gMap.setBuildingsEnabled(true);
         gMap.setIndoorEnabled(true);
         if (sharedPreferences.getString("ROLE", "Attendee").equals("Parent")) {
@@ -210,23 +215,19 @@ public class map extends Fragment implements OnMapReadyCallback {
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
-            gMap.addMarker(new MarkerOptions().position(new LatLng(19.0760, 72.8990)));
-            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(19.0760, 72.8990), 17));
+            //gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(19.0760, 72.8990), 17));
 
-
-            // gMap.setMyLocationEnabled(true);
+            gMap.setMyLocationEnabled(true);
 
         }
-        new fetchjson().execute();
+
     }
 
     class fetchjson extends AsyncTask<String, String, String> {
 
-
         @Override
         protected String doInBackground(String... strings) {
 
-            String requrl = "https://route.api.here.com/routing/7.2/calculateroute.json?app_id=ofcuggcq8XPpVyNQVyiJ&app_code=8giwlHmpdI5AbFQ-arHYRQ&waypoint0=19.0760,72.8990&waypoint1=19.0860,72.8990&mode=fastest;car;traffic:disabled";
             String value = null;
             try {
                 URL url = new URL(requrl);
@@ -243,18 +244,16 @@ public class map extends Fragment implements OnMapReadyCallback {
                 e.printStackTrace();
             }
 
-
             return value;
         }
 
         @Override
         protected void onPostExecute(String s) {
-
+            PolylineOptions options = new PolylineOptions();
             try {
                 JSONObject jsonObject = new JSONObject(s);
 
-                JSONArray array =jsonObject.getJSONArray("route");
-                Toast.makeText(getContext(),"jhhjj",Toast.LENGTH_LONG).show();
+                JSONArray array =jsonObject.getJSONObject("response").getJSONArray("route");
 
                 JSONObject jsonObject1 = array.getJSONObject(0);
                 JSONArray array1 =jsonObject1.getJSONArray("leg");
@@ -263,16 +262,14 @@ public class map extends Fragment implements OnMapReadyCallback {
                 for(int i=0;i<array2.length();i++){
                     JSONObject jsonObject3 = array2.getJSONObject(i);
                     JSONObject jsonObject4 =jsonObject3.getJSONObject("position");
-                    Toast.makeText(getContext(),jsonObject4.getString("latitude"),Toast.LENGTH_LONG).show();
-
-
+                    options.add(new LatLng(Double.valueOf(jsonObject4.getString("latitude")),Double.valueOf(jsonObject4.getString("longitude")))).width(10).color(Color.BLUE).geodesic(true);
+                    gMap.addPolyline(options);
                 }
-
+                //gMap.addPolyline(options);
+                //gMap.clear();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-
         }
     }
 
