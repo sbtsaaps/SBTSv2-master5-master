@@ -43,20 +43,22 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Pattern;
 
 import sbts.dmw.com.sbtrackingsystem.R;
 import sbts.dmw.com.sbtrackingsystem.classes.SingletonClass;
+import sbts.dmw.com.sbtrackingsystem.model.DirectionsJSONParser;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class map extends Fragment implements OnMapReadyCallback {
     GoogleMap gMap;
     MarkerOptions att;
@@ -77,8 +79,6 @@ public class map extends Fragment implements OnMapReadyCallback {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
-
         sharedPreferences = getActivity().getSharedPreferences("LOGIN", Context.MODE_PRIVATE);
     }
 
@@ -154,12 +154,8 @@ public class map extends Fragment implements OnMapReadyCallback {
                         @Override
                         public void onResponse(String response) {
                             str = Pattern.compile(",").split(response);
-                            //gMap.clear();
+                            gMap.clear();
                             att = new MarkerOptions().position(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]))).title("Bus");
-                            //att = new MarkerOptions().position(new LatLng(19.0860, 72.8990)).title("Bus");
-                            gMap.addMarker(new MarkerOptions().position(new LatLng(19.0760, 72.8990)).title("Pick-up spot"));
-                            requrl = "https://route.api.here.com/routing/7.2/calculateroute.json?app_id=ofcuggcq8XPpVyNQVyiJ&app_code=8giwlHmpdI5AbFQ-arHYRQ&waypoint0=19.0760,72.8990&waypoint1="+str[0]+","+str[1]+"&mode=balanced;car;traffic:disabled";
-                            new fetchjson().execute();
                             att.icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_station_location__48));
                             marker = gMap.addMarker(att);
 
@@ -167,7 +163,13 @@ public class map extends Fragment implements OnMapReadyCallback {
                                 gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1])), 17));
                                 once = false;
                             }
-
+                            if(sharedPreferences.getString("ROLE", "Attendee").equals("Parent")){
+                                gMap.addMarker(new MarkerOptions().position(new LatLng(Double.valueOf(sharedPreferences.getString("Latitude",null)),Double.valueOf(sharedPreferences.getString("Longitude",null)))).title("Pick-up spot"));
+                                requrl = getRequestURL(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]))
+                                        , new LatLng(Double.valueOf(sharedPreferences.getString("Latitude",null)),Double.valueOf(sharedPreferences.getString("Longitude",null))));
+                                TaskRequestDirections taskRequestDirections = new TaskRequestDirections();
+                                taskRequestDirections.execute(requrl);
+                            }
                         }
                     }, new Response.ErrorListener() {
                 @Override
@@ -215,62 +217,116 @@ public class map extends Fragment implements OnMapReadyCallback {
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
-            //gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(19.0760, 72.8990), 17));
-
             gMap.setMyLocationEnabled(true);
-
         }
-
+        gMap.getUiSettings().setZoomControlsEnabled(true);
     }
 
-    class fetchjson extends AsyncTask<String, String, String> {
+    public class TaskRequestDirections extends AsyncTask<String, Void, String> {
 
         @Override
         protected String doInBackground(String... strings) {
-
-            String value = null;
+            String responseString = "";
             try {
-                URL url = new URL(requrl);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
-                connection.connect();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-                value = bufferedReader.readLine();
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                responseString = requestDirection(strings[0]);
+            } catch (IOException ignored) {
             }
-
-            return value;
+            return responseString;
         }
 
         @Override
         protected void onPostExecute(String s) {
-            PolylineOptions options = new PolylineOptions();
+            super.onPostExecute(s);
+            TaskParser taskParser = new TaskParser();
+            taskParser.execute(s);
+        }
+    }
+
+    public class TaskParser extends AsyncTask<String, Void, List<List<HashMap<String, String>>>> {
+
+        @Override
+        protected List<List<HashMap<String, String>>> doInBackground(String... strings) {
+            JSONObject jsonObject = null;
+            List<List<HashMap<String, String>>> routes = null;
             try {
-                JSONObject jsonObject = new JSONObject(s);
+                jsonObject = new JSONObject(strings[0]);
+                DirectionsJSONParser directionsJSONParser = new DirectionsJSONParser();
+                routes = directionsJSONParser.parse(jsonObject);
+            } catch (JSONException ignored) {
+            }
+            return routes;
+        }
 
-                JSONArray array =jsonObject.getJSONObject("response").getJSONArray("route");
+        @Override
+        protected void onPostExecute(List<List<HashMap<String, String>>> lists) {
+            ArrayList points = null;
+            PolylineOptions polylineOptions = null;
+            for (List<HashMap<String, String>> path : lists) {
+                points = new ArrayList();
+                polylineOptions = new PolylineOptions();
 
-                JSONObject jsonObject1 = array.getJSONObject(0);
-                JSONArray array1 =jsonObject1.getJSONArray("leg");
-                JSONObject jsonObject2 = array1.getJSONObject(0);
-                JSONArray array2 = jsonObject2.getJSONArray("maneuver");
-                for(int i=0;i<array2.length();i++){
-                    JSONObject jsonObject3 = array2.getJSONObject(i);
-                    JSONObject jsonObject4 =jsonObject3.getJSONObject("position");
-                    options.add(new LatLng(Double.valueOf(jsonObject4.getString("latitude")),Double.valueOf(jsonObject4.getString("longitude")))).width(10).color(Color.BLUE).geodesic(true);
-                    gMap.addPolyline(options);
+                for (HashMap<String, String> point : path) {
+                    double lat = Double.parseDouble(point.get("lat"));
+                    double lng = Double.parseDouble(point.get("lng"));
+
+                    points.add(new LatLng(lat, lng));
                 }
-                //gMap.addPolyline(options);
-                //gMap.clear();
-            } catch (JSONException e) {
-                e.printStackTrace();
+
+                polylineOptions.addAll(points);
+                polylineOptions.width(15);
+                polylineOptions.color(Color.BLUE);
+                polylineOptions.geodesic(true);
+            }
+
+            if (polylineOptions != null) {
+                gMap.addPolyline(polylineOptions);
             }
         }
+    }
+
+    private String getRequestURL(LatLng origin, LatLng destination) {
+        String str_org = "origin=" + origin.latitude + "," + origin.longitude;
+        String str_des = "destination=" + destination.latitude + "," + destination.longitude;
+        String sensor = "sensor=false";
+        String mode = "mode=driving";
+        String param = str_org + "&" + str_des + "&" + sensor + "&" + mode;
+        String out = "json";
+        String key = "AIzaSyB7yTGSqwekPbk1CyjU1pwnmovegdndE5c";
+        //String deummy = "https://maps.googleapis.com/maps/api/directions/json?origin=Disneyland&destination=Universal+Studios+Hollywood&key=YOUR_API_KEY";
+        String url = "https://maps.googleapis.com/maps/api/directions/" + out + "?" + param + "&key=" + key;
+        return url;
+    }
+
+    private String requestDirection(String reqUrl) throws IOException {
+        String responseString = "";
+        InputStream inputStream = null;
+        HttpURLConnection httpURLConnection = null;
+        try {
+            URL url = new URL(reqUrl);
+            httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.connect();
+
+            inputStream = httpURLConnection.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+            StringBuffer stringBuffer = new StringBuffer();
+            String line = "";
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuffer.append(line);
+            }
+
+            responseString = stringBuffer.toString();
+            bufferedReader.close();
+            inputStream.close();
+        } catch (IOException ignored) {
+        } finally {
+            if (inputStream != null) {
+                inputStream.close();
+            }
+            httpURLConnection.disconnect();
+        }
+        return responseString;
     }
 
 }

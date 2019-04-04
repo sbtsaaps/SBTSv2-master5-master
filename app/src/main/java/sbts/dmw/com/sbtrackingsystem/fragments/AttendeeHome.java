@@ -29,9 +29,6 @@ public class AttendeeHome extends Fragment {
     View view;
     SharedPreferences sharedPreferences;
 
-
-
-
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -56,7 +53,6 @@ public class AttendeeHome extends Fragment {
         String Bus_No = sharedPreferences.getString("Bus_No", null);
         String DOB = sharedPreferences.getString("DOB", null);
         String Address = sharedPreferences.getString("Address", null);
-
 
         name.setText(Full_Name);
         byte[] imagebit = Base64.decode(Photo, Base64.DEFAULT);

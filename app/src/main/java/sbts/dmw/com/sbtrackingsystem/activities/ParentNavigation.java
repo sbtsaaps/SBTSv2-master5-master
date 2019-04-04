@@ -103,6 +103,7 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
             toolbar.setTitle("Map");
         }
         getData();
+
     }
 
 
@@ -178,15 +179,14 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
                         editor.putString("DOB", str[5]);
                         editor.putString("Student_Name", str[6]);
                         editor.putString("Address", str[7]);
+                        editor.putString("Latitude",str[8]);
+                        editor.putString("Longitude",str[9]);
                         editor.apply();
 
                         String Photo = sharedPreferences.getString("Photo", null);
                         byte[] imagebit = Base64.decode(Photo, Base64.DEFAULT);
                         imageView.setImageBitmap(BitmapFactory.decodeByteArray(imagebit, 0, imagebit.length));
 
-//
-
-                        //  Glide.with(getApplicationContext() ).load(sharedPreferences.getString("Photo", null)).apply(option).into(imageView);
                         name.setText(sharedPreferences.getString("Full_Name", null));
                         email.setText(sharedPreferences.getString("Email", null));
 

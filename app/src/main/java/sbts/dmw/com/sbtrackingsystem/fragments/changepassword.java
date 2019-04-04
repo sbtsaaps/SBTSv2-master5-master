@@ -40,11 +40,9 @@ public class changepassword extends Fragment {
 
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
 
         view = inflater.inflate(R.layout.fragment_changepassword, container, false);
         getActivity().setTitle("Change Password");
@@ -102,14 +100,9 @@ public class changepassword extends Fragment {
                     };
                     SingletonClass.getInstance(getActivity().getApplicationContext()).addToRequestQueue(stringRequest);
 
-
                 }
             }
 
         });
-
     }
-
-    
-
 }

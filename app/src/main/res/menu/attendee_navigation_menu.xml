@@ -14,7 +14,6 @@
             tools:ignore="HardcodedText" />
 
 
-
         <item
             android:id="@+id/nav_map"
             android:icon="@drawable/ic_map_black_24dp"
@@ -28,14 +27,17 @@
             android:title="Student's List"
             tools:ignore="HardcodedText" />
 
+        <item
+            android:id="@+id/nav_scanner"
+            android:icon="@drawable/ic_camera_black_24dp"
+            android:title="Scanner"
+            tools:ignore="HardcodedText" />
 
         <item
             android:id="@+id/nav_change_password"
             android:icon="@drawable/change_pass"
             android:title="Change Password"
             tools:ignore="HardcodedText" />
-
-
 
 
     </group>

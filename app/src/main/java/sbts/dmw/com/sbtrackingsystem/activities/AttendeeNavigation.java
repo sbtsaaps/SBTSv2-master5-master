@@ -2,7 +2,6 @@ package sbts.dmw.com.sbtrackingsystem.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,8 +9,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Looper;
 import android.provider.MediaStore;
@@ -19,8 +16,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -28,11 +23,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,20 +34,14 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -63,6 +50,7 @@ import sbts.dmw.com.sbtrackingsystem.R;
 import sbts.dmw.com.sbtrackingsystem.classes.SessionManager;
 import sbts.dmw.com.sbtrackingsystem.classes.SingletonClass;
 import sbts.dmw.com.sbtrackingsystem.fragments.AttendeeHome;
+import sbts.dmw.com.sbtrackingsystem.fragments.ScannerFragment;
 import sbts.dmw.com.sbtrackingsystem.fragments.StudentList;
 import sbts.dmw.com.sbtrackingsystem.fragments.changepassword;
 import sbts.dmw.com.sbtrackingsystem.fragments.map;
@@ -87,6 +75,7 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
     Bundle bundle;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
+
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
     LocationCallback locationCallback;
@@ -122,13 +111,13 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        fusedLocationProviderClient = new FusedLocationProviderClient(this);
+        locationRequest = new LocationRequest();
+        buildLocationCallBack();
 
-        drawerLayout = findViewById(R.id.attendeeDrawer);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setFastestInterval(2000);
+        locationRequest.setInterval(4000);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -140,11 +129,12 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-
-        buildLocationRequest();
-        buildLocationCallBack();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
 
+        drawerLayout = findViewById(R.id.attendeeDrawer);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
 
         if (savedInstanceState == null) {
             String url = "https://sbts2019.000webhostapp.com/studentList.php";
@@ -157,7 +147,6 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
         }
         getData();
     }
-
 
     @Override
     protected void onStart() {
@@ -172,10 +161,10 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        buildLocationRequest();
-        buildLocationCallBack();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
       }
+
+
 
     private void buildLocationCallBack() {
         locationCallback = new LocationCallback(){
@@ -212,18 +201,9 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
         };
     }
 
-    @SuppressLint("RestrictedApi")
-    private void buildLocationRequest() {
-        locationRequest = new LocationRequest();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(5000);
-        locationRequest.setFastestInterval(3000);
-        locationRequest.setSmallestDisplacement(10);
-    }
-
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 
@@ -277,6 +257,14 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
                 toolbar.setTitle("Change Password");
                 break;
             }
+            case R.id.nav_scanner: {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.nav_frame, new ScannerFragment())
+                        .commit();
+                toolbar.setTitle("ID Scanner");
+                break;
+            }
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
@@ -323,8 +311,6 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
                         byte[] imagebit=  Base64.decode(Photo,Base64.DEFAULT);
                         imageView.setImageBitmap(BitmapFactory.decodeByteArray(imagebit, 0,imagebit.length));
 
-
-
                         name.setText(sharedPreferences.getString("Full_Name", null));
                         email.setText(sharedPreferences.getString("Email", null));
 
@@ -343,8 +329,6 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
             }
         };
         SingletonClass.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
-
-
     }
 
     @Override

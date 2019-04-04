@@ -18,15 +18,10 @@ public class SingletonClass {
     private static SingletonClass mInstance;
     private RequestQueue requestQueue;
     private static Context mContext;
-    private Cache cache;
-    private Network network;
-
 
     private SingletonClass(Context context) {
         mContext = context;
         requestQueue = getRequestQueue();
-        cache = new DiskBasedCache(mContext.getCacheDir(), 1024 * 1024 * 10);
-        network = new BasicNetwork(new HurlStack());
 
     }
 

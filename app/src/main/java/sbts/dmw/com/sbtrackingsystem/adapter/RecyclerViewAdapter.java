@@ -45,7 +45,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     private Context sContext;
     private List<Student> sData;
-//    RequestOptions option;
     AlertDialog.Builder builder;
 
     public RecyclerViewAdapter(Context sContext, List<Student> sData, AlertDialog.Builder builder) {
@@ -53,7 +52,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         this.sContext = sContext;
         this.sData = sData;
         this.builder = builder;
-//        option = new RequestOptions().centerCrop().placeholder(R.drawable.loading_shape).error(R.drawable.loading_shape);
 
     }
 
@@ -76,7 +74,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         myViewHolder.student_roll_no.setText(sData.get(i).getRoll_no());
         myViewHolder.student_class.setText(sData.get(i).getS_class());
         myViewHolder.student_thumbnail.setImageBitmap(BitmapFactory.decodeByteArray(Base64.decode(sData.get(i).getPhoto(), Base64.DEFAULT), 0, Base64.decode(sData.get(i).getPhoto(), Base64.DEFAULT).length));
-        //   Glide.with(sContext).load(sData.get(i).getPhoto()).apply(option).into(myViewHolder.student_thumbnail);
 
         myViewHolder.linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -53,20 +53,10 @@ public class ParentHome extends Fragment {
     TextView name, email, mobile1, bus_no, dob, address, student_name;
     View view;
     SharedPreferences sharedPreferences;
-//    RequestOptions option;
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        option = new RequestOptions()
-//                .centerCrop()
-//                .placeholder(R.drawable.placeholder)
-//                .error(R.drawable.loading_shape)
-//                .diskCacheStrategy(DiskCacheStrategy.NONE)
-//                .skipMemoryCache(true);
-
-
     }
 
     @Nullable
@@ -95,17 +85,9 @@ public class ParentHome extends Fragment {
         String Student_Name = sharedPreferences.getString("Student_Name", null);
         String Address = sharedPreferences.getString("Address", null);
 
-
         name.setText(Full_Name);
-//        Glide.with(getActivity().getApplicationContext())
-//                .load(Photo)
-//                .apply(option)
-//                .into(imageView);
-
         byte[] imagebit=  Base64.decode(Photo,Base64.DEFAULT);
         imageView.setImageBitmap(BitmapFactory.decodeByteArray(imagebit, 0,imagebit.length));
-
-
 
         email.setText(Email);
         mobile1.setText(Mobile_No1);
