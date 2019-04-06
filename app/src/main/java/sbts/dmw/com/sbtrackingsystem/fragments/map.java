@@ -2,10 +2,12 @@ package sbts.dmw.com.sbtrackingsystem.fragments;
 
 
 import android.Manifest;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -27,6 +30,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -65,11 +69,15 @@ public class map extends Fragment implements OnMapReadyCallback {
     Boolean once = true;
     String Bus_No;
     String requrl;
+    Boolean parent = false;
+    String responseString;
 
     private Handler handler = new Handler();
     String[] str;
     SharedPreferences sharedPreferences;
     Marker marker;
+
+    LatLng newPos, oldPos;
 
     public map() {
     }
@@ -80,6 +88,7 @@ public class map extends Fragment implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         sharedPreferences = getActivity().getSharedPreferences("LOGIN", Context.MODE_PRIVATE);
+        oldPos = new LatLng(0, 0);
     }
 
     @Override
@@ -129,7 +138,7 @@ public class map extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Bus_No = sharedPreferences.getString("Bus_No", null);
+        //Bus_No = sharedPreferences.getString("Bus_No", null);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
@@ -148,33 +157,48 @@ public class map extends Fragment implements OnMapReadyCallback {
         @Override
         public void run() {
 
+            Bus_No = sharedPreferences.getString("Bus_No", null);
             String url = "https://sbts2019.000webhostapp.com/locationin.php";
             StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
+                            gMap.clear();
                             str = Pattern.compile(",").split(response);
-                            att = new MarkerOptions().position(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]))).title("Bus");
-                            att.icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_station_location__48));
-                            marker = gMap.addMarker(att);
+                            newPos = new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]));
 
                             if (once) {
                                 gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1])), 17));
                                 once = false;
-                                if(sharedPreferences.getString("ROLE", "Attendee").equals("Parent")){
-                                    gMap.addMarker(new MarkerOptions().position(new LatLng(Double.valueOf(sharedPreferences.getString("Latitude",null)),Double.valueOf(sharedPreferences.getString("Longitude",null)))).title("Pick-up spot"));
+                                if (sharedPreferences.getString("ROLE", "Attendee").equals("Parent")) {
+                                    gMap.addMarker(new MarkerOptions().position(new LatLng(Double.valueOf(sharedPreferences.getString("Latitude", null)), Double.valueOf(sharedPreferences.getString("Longitude", null)))).title("Pick-up spot"));
                                     requrl = getRequestURL(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]))
-                                            , new LatLng(Double.valueOf(sharedPreferences.getString("Latitude",null)),Double.valueOf(sharedPreferences.getString("Longitude",null))));
+                                            , new LatLng(Double.valueOf(sharedPreferences.getString("Latitude", null)), Double.valueOf(sharedPreferences.getString("Longitude", null))));
                                     TaskRequestDirections taskRequestDirections = new TaskRequestDirections();
                                     taskRequestDirections.execute(requrl);
+                                }
+                            }
+                            if (!oldPos.equals(newPos)) {
+                                att = new MarkerOptions().position(oldPos).title("Bus");
+                                att.icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_station_location__48));
+                                marker = gMap.addMarker(att);
+                                animateMarker(newPos, oldPos, marker, gMap);
+                                oldPos = newPos;
+                            }else{
+                                att = new MarkerOptions().position(newPos).title("Bus");
+                                att.icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_station_location__48));
+                                marker = gMap.addMarker(att);
+                            }
+                            if(sharedPreferences.getString("ROLE","Attendee").equals("Parent")){
+                                if(responseString != null){
+                                    TaskParser taskParser = new TaskParser();
+                                    taskParser.execute(responseString);
                                 }
                             }
                         }
                     }, new Response.ErrorListener() {
                 @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(getActivity().getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
-                }
+                public void onErrorResponse(VolleyError ignored) {}
             }) {
                 @Override
                 protected Map<String, String> getParams() throws AuthFailureError {
@@ -187,9 +211,46 @@ public class map extends Fragment implements OnMapReadyCallback {
 
             handler.postDelayed(this, 1000);
 
-
         }
     };
+
+    private interface LatLngInterpolator {
+        LatLng interpolate(float fraction, LatLng a, LatLng b);
+
+        class LinearFixed implements LatLngInterpolator {
+            @Override
+            public LatLng interpolate(float fraction, LatLng a, LatLng b) {
+                double lat = (b.latitude - a.latitude) * fraction + a.latitude;
+                double lngDelta = b.longitude - a.longitude;
+                // Take the shortest path across the 180th meridian.
+                if (Math.abs(lngDelta) > 180) {
+                    lngDelta -= Math.signum(lngDelta) * 360;
+                }
+                double lng = lngDelta * fraction + a.longitude;
+                return new LatLng(lat, lng);
+            }
+        }
+    }
+
+    public static void animateMarker(final LatLng destination, final LatLng source, final Marker m, final GoogleMap map) {
+
+        final LatLngInterpolator latLngInterpolator = new LatLngInterpolator.LinearFixed();
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
+        valueAnimator.setDuration(1000); // duration 1 second
+        valueAnimator.setInterpolator(new LinearInterpolator());
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                try {
+                    float v = animation.getAnimatedFraction();
+                    LatLng newPosition = latLngInterpolator.interpolate(v, source, destination);
+                    m.setPosition(newPosition);
+                } catch (Exception ignored) {}
+            }
+        });
+
+        valueAnimator.start();
+    }
 
     @Override
     public void onPause() {
@@ -225,7 +286,7 @@ public class map extends Fragment implements OnMapReadyCallback {
 
         @Override
         protected String doInBackground(String... strings) {
-            String responseString = "";
+            responseString = null;
             try {
                 responseString = requestDirection(strings[0]);
             } catch (IOException ignored) {
@@ -291,7 +352,6 @@ public class map extends Fragment implements OnMapReadyCallback {
         String param = str_org + "&" + str_des + "&" + sensor + "&" + mode;
         String out = "json";
         String key = "AIzaSyB7yTGSqwekPbk1CyjU1pwnmovegdndE5c";
-        //String deummy = "https://maps.googleapis.com/maps/api/directions/json?origin=Disneyland&destination=Universal+Studios+Hollywood&key=YOUR_API_KEY";
         String url = "https://maps.googleapis.com/maps/api/directions/" + out + "?" + param + "&key=" + key;
         return url;
     }
