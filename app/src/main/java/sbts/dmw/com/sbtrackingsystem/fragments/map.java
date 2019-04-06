@@ -154,7 +154,6 @@ public class map extends Fragment implements OnMapReadyCallback {
                         @Override
                         public void onResponse(String response) {
                             str = Pattern.compile(",").split(response);
-                            gMap.clear();
                             att = new MarkerOptions().position(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]))).title("Bus");
                             att.icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_station_location__48));
                             marker = gMap.addMarker(att);
@@ -162,13 +161,13 @@ public class map extends Fragment implements OnMapReadyCallback {
                             if (once) {
                                 gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1])), 17));
                                 once = false;
-                            }
-                            if(sharedPreferences.getString("ROLE", "Attendee").equals("Parent")){
-                                gMap.addMarker(new MarkerOptions().position(new LatLng(Double.valueOf(sharedPreferences.getString("Latitude",null)),Double.valueOf(sharedPreferences.getString("Longitude",null)))).title("Pick-up spot"));
-                                requrl = getRequestURL(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]))
-                                        , new LatLng(Double.valueOf(sharedPreferences.getString("Latitude",null)),Double.valueOf(sharedPreferences.getString("Longitude",null))));
-                                TaskRequestDirections taskRequestDirections = new TaskRequestDirections();
-                                taskRequestDirections.execute(requrl);
+                                if(sharedPreferences.getString("ROLE", "Attendee").equals("Parent")){
+                                    gMap.addMarker(new MarkerOptions().position(new LatLng(Double.valueOf(sharedPreferences.getString("Latitude",null)),Double.valueOf(sharedPreferences.getString("Longitude",null)))).title("Pick-up spot"));
+                                    requrl = getRequestURL(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]))
+                                            , new LatLng(Double.valueOf(sharedPreferences.getString("Latitude",null)),Double.valueOf(sharedPreferences.getString("Longitude",null))));
+                                    TaskRequestDirections taskRequestDirections = new TaskRequestDirections();
+                                    taskRequestDirections.execute(requrl);
+                                }
                             }
                         }
                     }, new Response.ErrorListener() {
