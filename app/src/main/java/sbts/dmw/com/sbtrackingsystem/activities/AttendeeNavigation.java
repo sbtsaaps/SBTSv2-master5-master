@@ -137,7 +137,7 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
         toggle.syncState();
 
         if (savedInstanceState == null) {
-            String url = "https://sbts2019.000webhostapp.com/studentList.php";
+            String url = "https://sbts2019.000webhostapp.com/absentStudentlist.php";
             bundle.putString("url", url);
             StudentList studentList = new StudentList();
             studentList.setArguments(bundle);
@@ -211,6 +211,7 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.nav_logout: {
+                resetList();
                 sessionManager.logout();
                 break;
             }
@@ -268,6 +269,19 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void resetList() {
+        String url = "https://sbts2019.000webhostapp.com/resetStudentList.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {}
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {}
+        });
+        SingletonClass.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
     }
 
 

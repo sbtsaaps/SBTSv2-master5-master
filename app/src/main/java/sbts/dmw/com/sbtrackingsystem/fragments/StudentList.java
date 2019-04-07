@@ -67,8 +67,6 @@ public class StudentList extends Fragment {
                 StudentList studentList = new StudentList();
                 studentList.setArguments(bundle);
                 getFragmentManager().beginTransaction().replace(R.id.nav_frame, studentList).commit();
-
-
                 return true;
             }
             case R.id.present: {
@@ -76,9 +74,7 @@ public class StudentList extends Fragment {
                 bundle.putString("url", url);
                 StudentList studentList = new StudentList();
                 studentList.setArguments(bundle);
-
                 getFragmentManager().beginTransaction().replace(R.id.nav_frame, studentList).commit();
-
                 return true;
             }
             case R.id.absent: {
@@ -87,7 +83,6 @@ public class StudentList extends Fragment {
                 StudentList studentList = new StudentList();
                 studentList.setArguments(bundle);
                 getFragmentManager().beginTransaction().replace(R.id.nav_frame, studentList).commit();
-
                 return true;
             }
         }
