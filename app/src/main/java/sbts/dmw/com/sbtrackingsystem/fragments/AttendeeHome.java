@@ -11,14 +11,10 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toolbar;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
+import java.util.Objects;
 
 import sbts.dmw.com.sbtrackingsystem.R;
 
@@ -35,7 +31,7 @@ public class AttendeeHome extends Fragment {
 
         view = inflater.inflate(R.layout.fragment_attendee_home, container, false);
 
-        getActivity().setTitle("Profile");
+        Objects.requireNonNull(getActivity()).setTitle("Profile");
         imageView = (ImageView) view.findViewById(R.id.attendee_profile_image);
         name = (TextView) view.findViewById(R.id.attendee_profile_name);
         email = (TextView) view.findViewById(R.id.attendee_profile_email);
@@ -55,8 +51,8 @@ public class AttendeeHome extends Fragment {
         String Address = sharedPreferences.getString("Address", null);
 
         name.setText(Full_Name);
-        byte[] imagebit = Base64.decode(Photo, Base64.DEFAULT);
-        imageView.setImageBitmap(BitmapFactory.decodeByteArray(imagebit, 0, imagebit.length));
+        byte[] image_bit = Base64.decode(Photo, Base64.DEFAULT);
+        imageView.setImageBitmap(BitmapFactory.decodeByteArray(image_bit, 0, image_bit.length));
 
         email.setText(Email);
         mobile1.setText(Mobile_No1);

@@ -48,7 +48,6 @@ public class StudentList extends Fragment {
         setHasOptionsMenu(true);
         builder = new AlertDialog.Builder(getActivity());
         bundle = new Bundle();
-
     }
 
     @Override
@@ -62,7 +61,7 @@ public class StudentList extends Fragment {
 
         switch (item.getItemId()) {
             case R.id.all: {
-                String url = "https://sbts2019.000webhostapp.com/studentList.php";
+                String url = getString(R.string.Student_List_URL);
                 bundle.putString("url", url);
                 StudentList studentList = new StudentList();
                 studentList.setArguments(bundle);
@@ -70,7 +69,7 @@ public class StudentList extends Fragment {
                 return true;
             }
             case R.id.present: {
-                String url = "https://sbts2019.000webhostapp.com/presentStudentlist.php";
+                String url = getString(R.string.Present_Students_URL);
                 bundle.putString("url", url);
                 StudentList studentList = new StudentList();
                 studentList.setArguments(bundle);
@@ -78,7 +77,7 @@ public class StudentList extends Fragment {
                 return true;
             }
             case R.id.absent: {
-                String url = "https://sbts2019.000webhostapp.com/absentStudentlist.php";
+                String url = getString(R.string.Absent_Students_URL);
                 bundle.putString("url", url);
                 StudentList studentList = new StudentList();
                 studentList.setArguments(bundle);
@@ -139,6 +138,5 @@ public class StudentList extends Fragment {
         SingletonClass.getInstance(getContext()).addToRequestQueue(request);
 
         return v;
-
     }
 }

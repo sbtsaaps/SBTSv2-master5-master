@@ -87,21 +87,15 @@ public class ScannerFragment extends Fragment {
             }
 
             @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-            }
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) { }
 
             @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-
-            }
+            public void surfaceDestroyed(SurfaceHolder holder) { }
         });
 
         barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
             @Override
-            public void release() {
-
-            }
+            public void release() { }
 
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {

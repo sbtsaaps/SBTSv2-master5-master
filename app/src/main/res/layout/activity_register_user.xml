@@ -126,7 +126,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="15dp"
                 android:background="@drawable/button_layout_2"
-                android:onClick="choosephoto"
+                android:onClick="choosePhoto"
                 android:text="choose"
                 android:textColor="@color/black" />
 
@@ -315,7 +315,7 @@
             android:layout_marginTop="15dp"
             android:layout_marginBottom="50dp"
             android:background="@drawable/button_layout_2"
-            android:onClick="uploaddata"
+            android:onClick="uploadData"
             android:text="Submit"
             android:textSize="17sp"
             android:textStyle="bold" />

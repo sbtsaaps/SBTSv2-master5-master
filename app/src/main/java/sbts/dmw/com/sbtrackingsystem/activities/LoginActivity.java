@@ -126,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
             loading.setVisibility(View.VISIBLE);
             login.setVisibility(View.GONE);
 
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://sbts2019.000webhostapp.com/login.php", new Response.Listener<String>() {
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, getString(R.string.Login_URL), new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {

@@ -120,13 +120,6 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
         locationRequest.setInterval(4000);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
@@ -137,7 +130,7 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
         toggle.syncState();
 
         if (savedInstanceState == null) {
-            String url = "https://sbts2019.000webhostapp.com/absentStudentlist.php";
+            String url = getString(R.string.Absent_Students_URL);
             bundle.putString("url", url);
             StudentList studentList = new StudentList();
             studentList.setArguments(bundle);
@@ -152,13 +145,6 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
     protected void onStart() {
         super.onStart();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
@@ -171,7 +157,7 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 for(final Location location:locationResult.getLocations()){
-                    String url = "https://sbts2019.000webhostapp.com/locationout.php";
+                    String url = getString(R.string.Location_Out_URL);
                     StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                             new Response.Listener<String>() {
                                 @Override
@@ -217,7 +203,7 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
             }
             case R.id.nav_studentsPresent: {
 
-                String url = "https://sbts2019.000webhostapp.com/studentList.php";
+                String url = getString(R.string.Student_List_URL);
                 bundle.putString("url", url);
                 StudentList studentList = new StudentList();
                 studentList.setArguments(bundle);
@@ -272,7 +258,7 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
     }
 
     private void resetList() {
-        String url = "https://sbts2019.000webhostapp.com/resetStudentList.php";
+        String url = getString(R.string.Reset_Student_List_URL);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -304,7 +290,7 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
 
     private void getData() {
 
-        url = "https://sbts2019.000webhostapp.com/attendee.php";
+        url = getString(R.string.Attendee_URL);
         stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -373,9 +359,9 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
 
     private void upload() {
 
-        String imageURL = "https://sbts2019.000webhostapp.com/uploadprofile.php";
+        String imageURL = getString(R.string.Upload_Profile_URL);
 
-        StringRequest imagerequest = new StringRequest(Request.Method.POST, imageURL, new Response.Listener<String>() {
+        StringRequest image_request = new StringRequest(Request.Method.POST, imageURL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
 
@@ -401,6 +387,6 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
             }
         };
 
-        SingletonClass.getInstance(getApplicationContext()).addToRequestQueue(imagerequest);
+        SingletonClass.getInstance(getApplicationContext()).addToRequestQueue(image_request);
     }
 }

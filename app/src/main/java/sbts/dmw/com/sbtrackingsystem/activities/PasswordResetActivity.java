@@ -42,7 +42,7 @@ public class PasswordResetActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Enter your email ", Toast.LENGTH_LONG).show();
                 } else {
 
-                    StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://sbts2019.000webhostapp.com/resetpassword.php", new Response.Listener<String>() {
+                    StringRequest stringRequest = new StringRequest(Request.Method.POST, getString(R.string.Reset_Password_URL), new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
                             Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
@@ -63,8 +63,6 @@ public class PasswordResetActivity extends AppCompatActivity {
                         }
                     };
                     SingletonClass.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
-
-
                 }
             }
         });

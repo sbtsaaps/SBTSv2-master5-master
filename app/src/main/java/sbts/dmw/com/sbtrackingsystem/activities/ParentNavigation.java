@@ -34,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import sbts.dmw.com.sbtrackingsystem.R;
@@ -93,9 +94,9 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
         setSupportActionBar(toolbar);
 
         drawerLayout = findViewById(R.id.parentDrawer);
-        ActionBarDrawerToggle toogle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toogle);
-        toogle.syncState();
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.parent_nav_frame, new map()).commit();
@@ -163,7 +164,7 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
 
     private void getData() {
 
-        url = "https://sbts2019.000webhostapp.com/parent.php";
+        url = getString(R.string.Parent_URL);
         stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -200,7 +201,7 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("username", sharedPreferences.getString("USERNAME", "NULL"));
+                params.put("username", Objects.requireNonNull(sharedPreferences.getString("USERNAME", "NULL")));
                 return params;
             }
         };
@@ -238,9 +239,9 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
 
     private void upload() {
 
-        String imageURL = "https://sbts2019.000webhostapp.com/uploadprofileparent.php";
+        String imageURL = getString(R.string.Upload_Profile_Parent_URL);
 
-        StringRequest imagerequest = new StringRequest(Request.Method.POST, imageURL, new Response.Listener<String>() {
+        StringRequest image_request = new StringRequest(Request.Method.POST, imageURL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
 
@@ -266,7 +267,7 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
             }
         };
 
-        SingletonClass.getInstance(getApplicationContext()).addToRequestQueue(imagerequest);
+        SingletonClass.getInstance(getApplicationContext()).addToRequestQueue(image_request);
     }
 
 }

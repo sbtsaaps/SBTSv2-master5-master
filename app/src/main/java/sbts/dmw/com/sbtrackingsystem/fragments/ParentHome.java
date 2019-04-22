@@ -7,46 +7,15 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 import sbts.dmw.com.sbtrackingsystem.R;
-import sbts.dmw.com.sbtrackingsystem.adapter.RecyclerViewAdapter;
-import sbts.dmw.com.sbtrackingsystem.classes.SingletonClass;
-import sbts.dmw.com.sbtrackingsystem.model.Student;
-
-import static android.content.Context.MODE_PRIVATE;
 
 public class ParentHome extends Fragment {
     ImageView imageView;
@@ -86,8 +55,8 @@ public class ParentHome extends Fragment {
         String Address = sharedPreferences.getString("Address", null);
 
         name.setText(Full_Name);
-        byte[] imagebit=  Base64.decode(Photo,Base64.DEFAULT);
-        imageView.setImageBitmap(BitmapFactory.decodeByteArray(imagebit, 0,imagebit.length));
+        byte[] image_bit =  Base64.decode(Photo,Base64.DEFAULT);
+        imageView.setImageBitmap(BitmapFactory.decodeByteArray(image_bit, 0, image_bit.length));
 
         email.setText(Email);
         mobile1.setText(Mobile_No1);

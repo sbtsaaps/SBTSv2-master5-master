@@ -1,6 +1,5 @@
 package sbts.dmw.com.sbtrackingsystem.activities;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -15,7 +14,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -23,20 +21,18 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.bumptech.glide.Glide;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 import sbts.dmw.com.sbtrackingsystem.R;
 import sbts.dmw.com.sbtrackingsystem.classes.SingletonClass;
 
 
 public class RegisterUserActivity extends AppCompatActivity {
-    EditText full_name, dob, email, mobile1, mobile2, address, city, pincode, id, name;
+    EditText full_name, dob, email, mobile1, mobile2, address, city, pin_code, id, name;
 
     RadioGroup radioGroup;
     Button photo;
@@ -59,7 +55,7 @@ public class RegisterUserActivity extends AppCompatActivity {
         mobile2 = findViewById(R.id.register_Mobile2);
         address = findViewById(R.id.register_address);
         city = findViewById(R.id.register_city);
-        pincode = findViewById(R.id.register_pincode);
+        pin_code = findViewById(R.id.register_pincode);
         id = findViewById(R.id.register_student_id);
         name = findViewById(R.id.register_student_name);
         radioGroup = findViewById(R.id.radioGrp);
@@ -74,13 +70,11 @@ public class RegisterUserActivity extends AppCompatActivity {
 
     }
 
-    public void choosephoto(View view) {
+    public void choosePhoto(View view) {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(intent, PICK_CODE);
-
-
     }
 
 
@@ -93,7 +87,7 @@ public class RegisterUserActivity extends AppCompatActivity {
             Uri path = data.getData();
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), path);
-                photo.setText("Selected");
+                photo.setText(getString(R.string.photo_Set_TEXT));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -102,7 +96,7 @@ public class RegisterUserActivity extends AppCompatActivity {
     }
 
 
-    private String imagetoString(Bitmap bitmap) {
+    private String imageToString(Bitmap bitmap) {
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
@@ -113,9 +107,9 @@ public class RegisterUserActivity extends AppCompatActivity {
 
     private void upload() {
 
-        String imageURL = "https://sbts2019.000webhostapp.com/uploadprofile.php";
+        String imageURL = getString(R.string.Upload_Profile_URL);
 
-        StringRequest imagerequest = new StringRequest(Request.Method.POST, imageURL, new Response.Listener<String>() {
+        StringRequest image_request = new StringRequest(Request.Method.POST, imageURL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
 
@@ -133,25 +127,20 @@ public class RegisterUserActivity extends AppCompatActivity {
 
                 Map<String, String> params = new HashMap<>();
                 params.put("name", User);
-                params.put("image", imagetoString(bitmap));
+                params.put("image", imageToString(bitmap));
 
                 return params;
             }
         };
 
-        SingletonClass.getInstance(getApplicationContext()).addToRequestQueue(imagerequest);
+        SingletonClass.getInstance(getApplicationContext()).addToRequestQueue(image_request);
     }
 
-    public void uploaddata(View view) {
-
+    public void uploadData(View view) {
 
         if (full_name.getText().toString().isEmpty()) {
-
             textInputLayout.setError("Enter Full Name");
-        } else {
-            //textInputLayout.
-        }
-        if (dob.getText().toString().isEmpty()) {
+        } else if (dob.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Enter Date of Birth", Toast.LENGTH_LONG).show();
         } else if (email.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Enter Email", Toast.LENGTH_LONG).show();
@@ -161,8 +150,8 @@ public class RegisterUserActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Enter Address", Toast.LENGTH_LONG).show();
         } else if (city.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Enter City", Toast.LENGTH_LONG).show();
-        } else if (pincode.getText().toString().isEmpty()) {
-            Toast.makeText(getApplicationContext(), "Enter Pincode", Toast.LENGTH_LONG).show();
+        } else if (pin_code.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Enter Pin-code", Toast.LENGTH_LONG).show();
         } else if (name.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Enter Student Name", Toast.LENGTH_LONG).show();
         } else if (gender.getText().toString().isEmpty()) {

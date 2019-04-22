@@ -89,7 +89,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     public void onClick(DialogInterface dialog, int which) {
 
 
-                        String url = "https://sbts2019.000webhostapp.com/markPresent.php";
+                        String url = sContext.getString(R.string.Mark_Present_URL);
                         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                                 new Response.Listener<String>() {
                                     @Override
@@ -116,10 +116,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 });
                 builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-
-                    }
+                    public void onClick(DialogInterface dialog, int which) {}
                 });
 
                 AlertDialog alert = builder.create();

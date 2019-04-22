@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,15 +21,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -41,7 +37,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,13 +45,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Pattern;
 
 import sbts.dmw.com.sbtrackingsystem.R;
@@ -68,7 +61,7 @@ public class map extends Fragment implements OnMapReadyCallback {
     MarkerOptions att;
     Boolean once = true;
     String Bus_No;
-    String requrl;
+    String req_url;
     Boolean parent = false;
     String responseString;
 
@@ -79,8 +72,7 @@ public class map extends Fragment implements OnMapReadyCallback {
 
     LatLng newPos, oldPos;
 
-    public map() {
-    }
+    public map() { }
 
 
     @Override
@@ -127,8 +119,7 @@ public class map extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map2, container, false);
         getActivity().setTitle("Map");
         return view;
@@ -142,23 +133,20 @@ public class map extends Fragment implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
     }
-
 
     @Override
     public void onStart() {
         super.onStart();
-        attloc.run();
+        attLoc.run();
     }
 
-
-    private Runnable attloc = new Runnable() {
+    private Runnable attLoc = new Runnable() {
         @Override
         public void run() {
 
             Bus_No = sharedPreferences.getString("Bus_No", null);
-            String url = "https://sbts2019.000webhostapp.com/locationin.php";
+            String url = getString(R.string.Location_In_URL);
             StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
@@ -172,10 +160,10 @@ public class map extends Fragment implements OnMapReadyCallback {
                                 once = false;
                                 if (sharedPreferences.getString("ROLE", "Attendee").equals("Parent")) {
                                     gMap.addMarker(new MarkerOptions().position(new LatLng(Double.valueOf(sharedPreferences.getString("Latitude", null)), Double.valueOf(sharedPreferences.getString("Longitude", null)))).title("Pick-up spot"));
-                                    requrl = getRequestURL(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]))
+                                    req_url = getRequestURL(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]))
                                             , new LatLng(Double.valueOf(sharedPreferences.getString("Latitude", null)), Double.valueOf(sharedPreferences.getString("Longitude", null))));
                                     TaskRequestDirections taskRequestDirections = new TaskRequestDirections();
-                                    taskRequestDirections.execute(requrl);
+                                    taskRequestDirections.execute(req_url);
                                 }
                             }
                             if (!oldPos.equals(newPos)) {
@@ -222,7 +210,6 @@ public class map extends Fragment implements OnMapReadyCallback {
             public LatLng interpolate(float fraction, LatLng a, LatLng b) {
                 double lat = (b.latitude - a.latitude) * fraction + a.latitude;
                 double lngDelta = b.longitude - a.longitude;
-                // Take the shortest path across the 180th meridian.
                 if (Math.abs(lngDelta) > 180) {
                     lngDelta -= Math.signum(lngDelta) * 360;
                 }
@@ -236,7 +223,7 @@ public class map extends Fragment implements OnMapReadyCallback {
 
         final LatLngInterpolator latLngInterpolator = new LatLngInterpolator.LinearFixed();
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
-        valueAnimator.setDuration(1000); // duration 1 second
+        valueAnimator.setDuration(1000);
         valueAnimator.setInterpolator(new LinearInterpolator());
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -255,7 +242,7 @@ public class map extends Fragment implements OnMapReadyCallback {
     @Override
     public void onPause() {
         super.onPause();
-        handler.removeCallbacks(attloc);
+        handler.removeCallbacks(attLoc);
 
 
     }
@@ -268,13 +255,6 @@ public class map extends Fragment implements OnMapReadyCallback {
         gMap.setIndoorEnabled(true);
         if (sharedPreferences.getString("ROLE", "Attendee").equals("Parent")) {
             if (ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 return;
             }
             gMap.setMyLocationEnabled(true);
