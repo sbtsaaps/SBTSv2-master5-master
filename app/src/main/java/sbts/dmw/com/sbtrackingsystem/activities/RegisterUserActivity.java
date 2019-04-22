@@ -55,7 +55,7 @@ public class RegisterUserActivity extends AppCompatActivity {
         mobile2 = findViewById(R.id.register_Mobile2);
         address = findViewById(R.id.register_address);
         city = findViewById(R.id.register_city);
-        pin_code = findViewById(R.id.register_pincode);
+        pin_code = findViewById(R.id.register_pin_code);
         id = findViewById(R.id.register_student_id);
         name = findViewById(R.id.register_student_name);
         radioGroup = findViewById(R.id.radioGrp);

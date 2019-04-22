@@ -10,24 +10,24 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Personal Details "
+            android:text="@string/personal_details"
             android:textColor="@color/black"
             android:textSize="25sp"
             android:textStyle="bold" />
 
         <android.support.design.widget.TextInputLayout
+            android:id="@+id/register_full_name_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="25dp"
-            android:id="@+id/register_full_name_layout"
-            android:hint="Enter your full name"
+            android:hint="@string/enter_your_full_name"
             android:textColorHint="@color/black"
             app:errorEnabled="true"
             app:hintEnabled="true">
@@ -45,8 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:hint="Date of Birth (YYYY-MM-DD)"
-
+            android:hint="@string/date_of_birth_yyyy_mm_dd"
             android:textColorHint="@color/black"
             app:errorEnabled="true"
             app:hintEnabled="true">
@@ -70,7 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:text="Select your gender "
+                android:text="@string/select_your_gender"
                 android:textColor="@color/black"
                 android:textSize="17sp" />
 
@@ -88,19 +87,21 @@
                     android:layout_gravity="left"
                     android:layout_weight="1"
                     android:checked="true"
-                    android:text="Male"
-                    android:textSize="14dp" />
+                    android:text="@string/male"
+                    android:textSize="14sp"
+                    tools:ignore="RtlHardcoded" />
 
                 <RadioButton
                     android:id="@+id/radioF"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
                     android:layout_weight="1"
                     android:checked="false"
-                    android:text="Female"
-                    android:textSize="14dp" />
+                    android:text="@string/female"
+                    android:textSize="14sp"
+                    tools:ignore="RtlHardcoded" />
             </RadioGroup>
 
 
@@ -115,7 +116,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:text="Select profile  photo "
+                android:text="@string/select_profile_photo"
                 android:textColor="@color/black"
                 android:textSize="17sp" />
 
@@ -123,11 +124,11 @@
                 android:id="@+id/register_photo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginTop="15dp"
                 android:background="@drawable/button_layout_2"
                 android:onClick="choosePhoto"
-                android:text="choose"
+                android:text="@string/choose"
                 android:textColor="@color/black" />
 
         </LinearLayout>
@@ -136,10 +137,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:hint="Enter email"
+            android:hint="@string/enter_your_email_address"
             android:textColorHint="@color/black"
             app:errorEnabled="true"
-
             app:hintEnabled="true">
 
             <EditText
@@ -156,7 +156,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:hint="Mobile no"
+            android:hint="@string/enter_your_phone_number"
             android:textColorHint="@color/black"
             app:errorEnabled="true"
 
@@ -176,10 +176,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:hint="Alternate Mobile no"
+            android:hint="@string/alternate_mobile_no"
             android:textColorHint="@color/black"
             app:errorEnabled="true"
-
             app:hintEnabled="true">
 
             <EditText
@@ -197,7 +196,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Address Details"
+            android:text="@string/address_details"
             android:textColor="@color/black"
             android:textSize="25sp"
             android:textStyle="bold" />
@@ -206,9 +205,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:hint="House address"
+            android:hint="@string/residential_address"
             android:textColorHint="@color/black"
-
             app:errorEnabled="true"
             app:hintEnabled="true">
 
@@ -225,7 +223,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:hint="City"
+            android:hint="@string/city"
             android:textColorHint="@color/black"
             app:errorEnabled="true"
 
@@ -245,14 +243,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:layout_marginBottom="10dp"
-            android:hint="Pincode"
+            android:hint="@string/pin_code"
             android:textColorHint="@color/black"
             app:errorEnabled="true"
 
             app:hintEnabled="true">
 
             <EditText
-                android:id="@+id/register_pincode"
+                android:id="@+id/register_pin_code"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
@@ -264,7 +262,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Student Details"
+            android:text="@string/student_details"
             android:textSize="25sp"
             android:textStyle="bold" />
 
@@ -273,7 +271,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:layout_marginBottom="10dp"
-            android:hint="Id No"
+            android:hint="@string/id_no"
             android:textColorHint="@color/black"
             app:errorEnabled="true"
             app:hintEnabled="true">
@@ -293,10 +291,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:layout_marginBottom="10dp"
-            android:hint="Name "
+            android:hint="@string/name"
             android:textColorHint="@color/black"
             app:errorEnabled="true"
-
             app:hintEnabled="true">
 
             <EditText
@@ -316,10 +313,9 @@
             android:layout_marginBottom="50dp"
             android:background="@drawable/button_layout_2"
             android:onClick="uploadData"
-            android:text="Submit"
+            android:text="@string/submit"
             android:textSize="17sp"
             android:textStyle="bold" />
-
 
     </LinearLayout>
 
